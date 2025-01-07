@@ -925,8 +925,8 @@ object Form1: TForm1
     OnClick = Button1Click
   end
   object Template: TPanel
-    Left = 411
-    Top = 8
+    Left = 273
+    Top = 17
     Width = 185
     Height = 41
     BevelOuter = bvNone
