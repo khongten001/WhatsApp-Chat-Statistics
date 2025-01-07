@@ -23,4 +23,5 @@ This project was inspired by [this](https://wabetainfo.com/project-reveals-a-fea
 - Units in the Depenencies folder
 
 ## Screenshots
+![image](https://github.com/user-attachments/assets/fb828591-e4a2-4232-9aa5-b1edd1f19753)
 ![Screenshot 2025-01-07 154302](https://github.com/user-attachments/assets/591a58b7-105b-4d5c-96d6-732e26af9f99)
