@@ -8,9 +8,9 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Cod.Windows, Cod.SysUtils, Cod.ArrayHelpers,
   Vcl.StdCtrls, Vcl.Imaging.pngimage, Vcl.ExtCtrls, Cod.Files, Cod.Types,
-  Types, IOUtils, UITypes, Zip, Math, Cod.ColorUtils,
+  Types, IOUtils, UITypes, Zip, Math, Cod.ColorUtils, Cod.Version,
   Cod.Visual.Chart, Cod.StringUtils, System.Generics.Collections, DateUtils,
-  Cod.TimeUtils;
+  Cod.TimeUtils, Vcl.Clipbrd;
 
 type
   TSender = (Unknown{System}, Me, Them);
@@ -252,6 +252,8 @@ type
     Label132: TLabel;
     Label133: TLabel;
     Label134: TLabel;
+    Button3: TButton;
+    Label135: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -259,6 +261,7 @@ type
     procedure PaintBox1Paint(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure PaintBox2Paint(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -290,6 +293,8 @@ const
   COLOR_THEM: TColor = $00E2E762;
 
   INTERVAL_COUNT = 150;
+
+  APP_VERSION: TVersion = (Major: 1; Minor: 1; Maintenance: 0);
 
   // For conversation grouping
   TIME_THRESHOLD = OneHour * 2; // hours
@@ -387,11 +392,14 @@ begin
   const S = Text.ToLower;
 
   // Add
+
+  (* LANG-ENG *)
   Inc(Result, StrCount('i', S)); // I
   Inc(Result, StrCount('myself', S));
   Inc(Result, StrCount('me', S));
   Inc(Result, StrCount('am', S)); // en, y not
 
+  (* LANG-RO *)
   Inc(Result, StrCount('am', S)); // ro
   Inc(Result, StrCount('însămi', S));
     Inc(Result, StrCount('insami', S));
@@ -415,10 +423,12 @@ begin
   const S = Text.ToLower;
 
   // Add
+  (* LANG-ENG *)
   Inc(Result, StrCount('you', S));
   Inc(Result, StrCount('yourself', S));
   Inc(Result, StrCount('are', S));
 
+  (* LANG-RO *)
   Inc(Result, StrCount('tu', S));
   Inc(Result, StrCount('ai', S));
   Inc(Result, StrCount('ești', S));
@@ -531,6 +541,11 @@ begin
     Text := Text.Substring(P+FILE_ATTACH_STR.Length + 1 {remove the #13 I added}, Text.Length);
   end;
 
+  // Filter text
+  if (Text.ToLower = 'you deleted this message')
+    or (Text.ToLower = 'this message was deleted') then
+    Text := '';
+
   // Success
   Result := true;
 end;
@@ -637,21 +652,26 @@ var
   WordUsageMe,
   WordUsageThem: TArray<int64>;
 procedure ProcessWord(Word: string; var Words: TArray<string>; var WordUsage: TArray<int64>);
+var
+  Index: integer;
 begin
   Word := Word.ToLower;
 
-  const Index = TArray.IndexOf<string>(Words, Word);
-  if Index <> -1 then begin
+  // Get index
+  Index := TArray.IndexOf<string>(Words, Word);
 
-    // If at least 4 lettters
-    if Length(Word) >= 5 then
-      Inc( WordUsage[Index] );
-    Exit;
+  // Add mew
+  if Index = -1 then begin
+    Index := Length(Words);
+
+    // Add
+    Words := Words + [Word];
+    WordUsage := WordUsage + [0];
   end;
 
-  // Add
-  Words := Words + [Word];
-  WordUsage := WordUsage + [1];
+  // If at least 4 lettters, and is not protocol
+  if (Length(Word) >= 5) and not TArray.Contains<string>(['http', 'https'], Word) then
+    Inc( WordUsage[Index] );
 end;
 begin
   // Intervals
@@ -1015,6 +1035,26 @@ begin
   LoadFromDatabaseEx;
 end;
 
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  B: TBitMap;
+  R: TRect;
+begin
+  B := TBitMap.Create(Self.ClientWidth, Self.ClientHeight);
+  try
+    // Get rect
+    R := Self.ClientRect;
+
+    // Copy
+    B.Canvas.CopyRect( R, Self.Canvas, R );
+
+    Clipboard.Assign( B );
+  finally
+    B.Free;
+  end;
+
+end;
+
 procedure TForm1.ClearDatabase;
 begin
   Messages := [];
@@ -1044,6 +1084,8 @@ begin
 
   // UI
   Template.Free;
+
+  Label135.Caption := 'Version ' + APP_VERSION.ToString;
 end;
 
 procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -1167,6 +1209,7 @@ procedure TForm1.LoadToUI;
 begin
   // Buttons
   Button2.Enabled := IsLoaded;
+  Button3.Enabled := IsLoaded;
 
   // No chats
   Label5.Caption := 'Select a chat';
@@ -1324,37 +1367,43 @@ begin
 
   // Extract
   UnzipToDirectory(ZipArchive, AppDataTemp);
-
-  AChatFileName := AppDataTemp+ChangeFileExt(FileName, '.txt');
-  if not TFile.Exists(AChatFileName) then
-    AChatFileName := '';
-
-  if AChatFileName = '' then begin
-    const Files = TDirectory.GetFiles(AppDataTemp, '*.txt');
-    if Length(Files) > 0 then
-      AChatFileName := Files[0];
-  end;
-
-  if AChatFileName = '' then begin
-    MessageDLG('The chat log could not be read. Sorry about that :/', mtWarning, [mbOk], 0);
-    Exit;
-  end;
-
-  // Delete previous DB
-  if TDirectory.Exists(AppDataDB) then
-    TDirectory.Delete(AppDataDB, true);
-  TDirectory.CreateDirectory(AppDataDB);
-
-  // Write
   try
-    TFile.Copy(AChatFileName, AppDataDB+'chatlog.txt');
-    TFile.WriteAllText(AppDataDB+'chatwith.dat', AChatWith, TEncoding.UTF8);
-  except
+    AChatFileName := AppDataTemp+ChangeFileExt(FileName, '.txt');
+    if not TFile.Exists(AChatFileName) then
+      AChatFileName := '';
+
+    if AChatFileName = '' then begin
+      const Files = TDirectory.GetFiles(AppDataTemp, '*.txt');
+      if Length(Files) > 0 then
+        AChatFileName := Files[0];
+    end;
+
+    if AChatFileName = '' then begin
+      MessageDLG('The chat log could not be read. Sorry about that :/', mtWarning, [mbOk], 0);
+      Exit;
+    end;
+
+    // Delete previous DB
+
     if TDirectory.Exists(AppDataDB) then
       TDirectory.Delete(AppDataDB, true);
-    MessageDLG('The chat could not be read. Sorry!', mtWarning, [mbOk], 0);
+    TDirectory.CreateDirectory(AppDataDB);
 
-    // proceed to load db
+    // Write
+    try
+      TFile.Copy(AChatFileName, AppDataDB+'chatlog.txt');
+      TFile.WriteAllText(AppDataDB+'chatwith.dat', AChatWith, TEncoding.UTF8);
+    except
+      if TDirectory.Exists(AppDataDB) then
+        TDirectory.Delete(AppDataDB, true);
+      MessageDLG('The chat could not be read. Sorry!', mtWarning, [mbOk], 0);
+
+      // proceed to load db
+    end;
+  finally
+    // Delete temp
+    if TDirectory.Exists(AppDataTemp) then
+      TDirectory.Delete(AppDataTemp, true);
   end;
 
   // Load

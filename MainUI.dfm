@@ -875,6 +875,21 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
   end
+  object Label135: TLabel
+    Left = 1150
+    Top = 825
+    Width = 74
+    Height = 17
+    Alignment = taRightJustify
+    Anchors = [akRight, akBottom]
+    Caption = 'Version 0.0.0'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWhite
+    Font.Height = -13
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+  end
   object CChart1: CChart
     Left = 504
     Top = 329
@@ -3300,6 +3315,17 @@ object Form1: TForm1
         ExplicitHeight = 21
       end
     end
+  end
+  object Button3: TButton
+    Left = 648
+    Top = 16
+    Width = 172
+    Height = 41
+    Anchors = [akTop, akRight]
+    Caption = 'Copy to clipboard'
+    Style = bsCommandLink
+    TabOrder = 10
+    OnClick = Button3Click
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = '*'
