@@ -16,7 +16,7 @@ Get the statistics of any of your Chats on WhatsApp. See who is most talkative, 
 - Romanian
 
 ### Other information
-This project was inspired by [this](https://wabetainfo.com/project-reveals-a-feature-to-generate-advanced-analytics-for-whatsapp-chats-and-groups/) blow by WABetaInfo. I really liked the application they showcased and I wanted to try It but there was no release for Windows or Android.
+This project was inspired by [this](https://wabetainfo.com/project-reveals-a-feature-to-generate-advanced-analytics-for-whatsapp-chats-and-groups/) blog by WABetaInfo. I really liked the application they showcased and I wanted to try It, but there was no release for Windows or Android.
 
 ### Dependencies
 - Codrut Visual Library - https://github.com/Codrax/CodrutsVisualLibrary/
