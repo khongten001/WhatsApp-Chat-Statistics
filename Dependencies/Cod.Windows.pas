@@ -496,7 +496,7 @@ begin
 
   // Provide address
   SetLength(Result, dwSize-1); // exclude null-terminated
-  if not {$IF CompilerVersion <= 35.0}Succeeded({$IFEND}
+  if not {$IF CompilerVersion <= 35.0}longbool({$IFEND}
     GetComputerNameEx(nameType, PWideChar(Result), dwSize)
     {$IF CompilerVersion <= 35.0}){$IFEND} then
     RaiseLastOSError;
@@ -518,7 +518,7 @@ begin
 
   // Provide address
   SetLength(Result, dwSize-1); // exclude null-terminated
-  if not {$IF CompilerVersion <= 35.0}Succeeded({$IFEND}
+  if not {$IF CompilerVersion <= 35.0}longbool({$IFEND}
     GetUserNameEx(nameType, PWideChar(Result), dwSize)
     {$IF CompilerVersion <= 35.0}){$IFEND} then
     RaiseLastOSError;
@@ -540,7 +540,7 @@ begin
 
   // Provide address
   SetLength(Result, dwSize-1); // exclude null-terminated
-  if not {$IF CompilerVersion <= 35.0}Succeeded({$IFEND}
+  if not {$IF CompilerVersion <= 35.0}longbool({$IFEND}
     GetUserNameEx(nameType, PWideChar(Result), dwSize)
     {$IF CompilerVersion <= 35.0}){$IFEND} then
     RaiseLastOSError;
