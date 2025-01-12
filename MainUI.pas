@@ -9,8 +9,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Cod.Windows, Cod.SysUtils, Cod.ArrayHelpers,
   Vcl.StdCtrls, Vcl.Imaging.pngimage, Vcl.ExtCtrls, Cod.Files, Cod.Types,
   Types, IOUtils, UITypes, Zip, Math, Cod.ColorUtils, Cod.Version,
-  Cod.Visual.Chart, Cod.StringUtils, System.Generics.Collections, DateUtils,
-  Cod.TimeUtils, Vcl.Clipbrd;
+  Cod.Visual.Chart, Cod.StringUtils, DateUtils, Cod.TimeUtils, Vcl.Clipbrd;
 
 type
   TSender = (Unknown{System}, Me, Them);
@@ -658,7 +657,7 @@ begin
   Word := Word.ToLower;
 
   // Get index
-  Index := TArray.IndexOf<string>(Words, Word);
+  Index := TArrayUtils<string>.GetIndex(Word, Words);
 
   // Add mew
   if Index = -1 then begin
@@ -670,7 +669,7 @@ begin
   end;
 
   // If at least 4 lettters, and is not protocol
-  if (Length(Word) >= 5) and not TArray.Contains<string>(['http', 'https'], Word) then
+  if (Length(Word) >= 5) and not TArrayUtils<string>.Contains(Word, ['http', 'https']) then
     Inc( WordUsage[Index] );
 end;
 begin
