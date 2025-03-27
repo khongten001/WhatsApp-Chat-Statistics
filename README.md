@@ -1,15 +1,15 @@
 # WhatsApp Chat Statistics
 Get the statistics of any of your Chats on WhatsApp. See who is most talkative, who apologizes the most or who is the conversation leader. This app scans a WhatsApp chat log file and outputs all sorts of information.
 
-### Main featureded statistics
+### Main featured statistics
 - Chat points (the value of each message)
 - Growth over time, measured in points
-- Messaging Active Times
-- Response Analytics
+- Messaging active times
+- Response analytics
 - Direction of conversation (who is in the spotlight most)
 - Word, character and message count
-- Count of who Started, Ended, Ignored, Contributed most and send Double-Messages
-- Content Analytics, as in what messages constated in
+- Count of who started, ended, ignored, contributed most and send double-messages
+- Content analytics, as in what message contents were sent most
 
 ### Supported Languages
 - English
